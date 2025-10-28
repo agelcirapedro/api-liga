@@ -1,26 +1,51 @@
 // Modelo para futura integração com PostgreSQL
+const pool = require('../../config/database');
+
 class Gesture {
-  constructor(id, word, category) {
-    this.id = id;
-    this.word = word;
-    this.category = category;
-  }
-
-  // Método estático para buscar todos (mock por enquanto)
+  // Buscar todos os gestos
   static async findAll() {
-    // TODO: Substituir por consulta PostgreSQL
-    return [
-      { id: 1, word: 'bom dia', category: 'saudacao' },
-      { id: 2, word: 'obrigado', category: 'educacao' },
-      { id: 3, word: 'água', category: 'necessidades' }
-    ];
+    try {
+      const result = await pool.query(`
+        SELECT * FROM gestures 
+        ORDER BY id
+      `);
+      return result.rows;
+    } catch (error) {
+      console.error('Erro ao buscar gestos:', error);
+      throw error;
+    }
   }
 
-  // Método para buscar por ID
+  // Buscar gesto por ID
   static async findById(id) {
-    // TODO: Substituir por consulta PostgreSQL
-    const gestures = await this.findAll();
-    return gestures.find(g => g.id === parseInt(id));
+    try {
+      const result = await pool.query(`
+        SELECT * FROM gestures 
+        WHERE id = $1
+      `, [id]);
+      
+      return result.rows[0];
+    } catch (error) {
+      console.error('Erro ao buscar gesto:', error);
+      throw error;
+    }
+  }
+
+  // Criar novo gesto
+  static async create(gestureData) {
+    try {
+      const { word, category, description } = gestureData;
+      const result = await pool.query(`
+        INSERT INTO gestures (word, category, description) 
+        VALUES ($1, $2, $3) 
+        RETURNING *
+      `, [word, category, description]);
+      
+      return result.rows[0];
+    } catch (error) {
+      console.error('Erro ao criar gesto:', error);
+      throw error;
+    }
   }
 }
 
