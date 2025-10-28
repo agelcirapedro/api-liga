@@ -1,0 +1,40 @@
+version: '3.8'
+
+# Docker Compose para Desenvolvimento
+# Uso: docker-compose -f docker-compose.dev.yml up
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: liga-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: liga_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - liga-dev-network
+
+  # Redis (para testes de cache)
+  redis:
+    image: redis:7-alpine
+    container_name: liga-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - liga-dev-network
+
+volumes:
+  postgres_dev_data:
+    name: liga-postgres-dev-data
+
+networks:
+  liga-dev-network:
+    name: liga-dev-network
+    driver: bridge

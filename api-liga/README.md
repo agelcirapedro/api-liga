@@ -18,9 +18,10 @@ API RESTful para o projeto LIGA (Língua Gestual Angolana), desenvolvida para fa
 - **Node.js** - Runtime JavaScript
 - **Express** - Framework web
 - **PostgreSQL** - Banco de dados relacional
-- **Firebase** - Storage de arquivos e autenticação
-- **Redis** - Cache (opcional)
+- **Firebase Storage** - Armazenamento de vídeos na nuvem
 - **JWT** - Autenticação e autorização
+- **Swagger** - Documentação interativa da API
+- **Multer** - Upload de arquivos multipart/form-data
 
 ## 📦 Pré-requisitos
 
@@ -97,6 +98,17 @@ Execute as migrações para criar as tabelas:
 npm run migrate
 ```
 
+### 3. Configuração do Firebase Storage
+
+Para upload de vídeos, configure o Firebase Storage. Consulte o guia completo em [`docs/FIREBASE_SETUP.md`](docs/FIREBASE_SETUP.md).
+
+**Resumo rápido:**
+1. Crie projeto no [Firebase Console](https://console.firebase.google.com/)
+2. Ative Firebase Storage
+3. Baixe credenciais de service account
+4. Salve como `config/firebase-service-account.json` ou configure variáveis no `.env`
+5. Configure regras de segurança no Firebase Console
+
 ## 🏃 Uso
 
 ### Desenvolvimento
@@ -139,19 +151,32 @@ api-liga/
 
 ## 🔌 API Endpoints
 
+### Autenticação
+
+- `POST /api/v1/auth/register` - Registrar novo usuário
+- `POST /api/v1/auth/login` - Login e obter token JWT
+- `GET /api/v1/auth/profile` - Ver perfil (requer autenticação)
+- `PUT /api/v1/auth/profile` - Atualizar perfil (requer autenticação)
+- `PUT /api/v1/auth/password` - Alterar senha (requer autenticação)
+
 ### Gestos
 
 - `GET /api/v1/gestures` - Lista todos os gestos
 - `GET /api/v1/gestures/:id` - Obtém um gesto específico
-- `POST /api/v1/gestures` - Cria um novo gesto
-- `PUT /api/v1/gestures/:id` - Atualiza um gesto
-- `DELETE /api/v1/gestures/:id` - Remove um gesto
+- `POST /api/v1/gestures` - Cria um novo gesto (requer autenticação)
+- `PUT /api/v1/gestures/:id` - Atualiza um gesto (requer autenticação)
+- `DELETE /api/v1/gestures/:id` - Remove um gesto (requer autenticação + admin)
 
 ### Vídeos
 
-- `GET /api/v1/videos` - Lista todos os vídeos
-- `GET /api/v1/videos/:id` - Obtém um vídeo específico
-- `POST /api/v1/videos` - Upload de vídeo
+- `GET /api/v1/gestures/with-videos` - Lista gestos com vídeos
+- `POST /api/v1/gestures/:id/video` - Upload de vídeo para Firebase Storage (requer autenticação)
+- `DELETE /api/v1/gestures/:id/video` - Deletar vídeo (requer autenticação)
+
+### Documentação
+
+- `GET /api-docs` - Documentação interativa Swagger
+- `GET /api-docs.json` - Especificação OpenAPI JSON
 
 ## 🛡️ Segurança
 

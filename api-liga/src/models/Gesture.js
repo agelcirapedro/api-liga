@@ -32,15 +32,36 @@ class Gesture {
   // Criar novo gesto
   static async create(gestureData) {
     try {
-      const { word_pt, word_lga, category, description } = gestureData;
+      const { word, category, description } = gestureData;
       const result = await pool.query(`
-        INSERT INTO gestures (word_pt, word_lga, category, description)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO gestures (word, category, description)
+        VALUES ($1, $2, $3)
         RETURNING *
-      `, [word_pt, word_lga, category, description]);
+      `, [word, category, description]);
       return result.rows[0];
     } catch (error) {
       console.error('Erro ao criar gesto:', error);
+      throw error;
+    }
+  }
+
+  // Atualizar gesto completo
+  static async update(id, gestureData) {
+    try {
+      const { word, category, description } = gestureData;
+      const result = await pool.query(`
+        UPDATE gestures 
+        SET word = $1, 
+            category = $2, 
+            description = $3,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $4
+        RETURNING *
+      `, [word, category, description, id]);
+      
+      return result.rows[0];
+    } catch (error) {
+      console.error('Erro ao atualizar gesto:', error);
       throw error;
     }
   }
@@ -58,6 +79,22 @@ class Gesture {
       return result.rows[0];
     } catch (error) {
       console.error('Erro ao atualizar vídeo:', error);
+      throw error;
+    }
+  }
+
+  // Remover gesto
+  static async delete(id) {
+    try {
+      const result = await pool.query(`
+        DELETE FROM gestures 
+        WHERE id = $1
+        RETURNING *
+      `, [id]);
+      
+      return result.rows[0];
+    } catch (error) {
+      console.error('Erro ao remover gesto:', error);
       throw error;
     }
   }

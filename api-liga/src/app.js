@@ -2,9 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('../config/swagger');
 
 const gestureRoutes = require('./routes/gestureRoutes');
 const videoRoutes = require('./routes/videoRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -15,7 +18,20 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
+// Documentação Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'API LIGA - Documentação'
+}));
+
+// Rota para spec JSON
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
 // Rotas
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1', gestureRoutes);
 app.use('/api/v1', videoRoutes);
 
@@ -52,4 +68,5 @@ app.listen(port, () => {
   console.log(`🚀 Servidor rodando na porta ${port}`);
   console.log(`📍 http://localhost:${port}`);
   console.log(`🏥 Health check: http://localhost:${port}/health`);
+  console.log(`📚 Documentação API: http://localhost:${port}/api-docs`);
 });
