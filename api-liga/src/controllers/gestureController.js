@@ -1,20 +1,18 @@
-// Mock data - depois virá do PostgreSQL
-const gestures = [
-  { id: 1, word: 'bom dia', category: 'saudacao' },
-  { id: 2, word: 'obrigado', category: 'educacao' },
-  { id: 3, word: 'água', category: 'necessidades' }
-];
+const Gesture = require('../models/Gesture');
 
 const gestureController = {
-  // Listar todos os gestos
-  getAllGestures: (req, res) => {
+  // Listar todos os gestos (agora do PostgreSQL)
+  getAllGestures: async (req, res) => {
     try {
+      const gestures = await Gesture.findAll();
+      
       res.json({
         success: true,
         count: gestures.length,
         data: gestures
       });
     } catch (error) {
+      console.error('Erro no controller:', error);
       res.status(500).json({
         success: false,
         message: 'Erro ao buscar gestos',
@@ -23,11 +21,11 @@ const gestureController = {
     }
   },
 
-  // Buscar gesto por ID
-  getGestureById: (req, res) => {
+  // Buscar gesto por ID (agora do PostgreSQL)
+  getGestureById: async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      const gesture = gestures.find(g => g.id === id);
+      const { id } = req.params;
+      const gesture = await Gesture.findById(id);
       
       if (!gesture) {
         return res.status(404).json({
@@ -41,6 +39,7 @@ const gestureController = {
         data: gesture
       });
     } catch (error) {
+      console.error('Erro no controller:', error);
       res.status(500).json({
         success: false,
         message: 'Erro ao buscar gesto',
@@ -55,7 +54,8 @@ const gestureController = {
       status: 'OK', 
       message: 'API LIGA está funcionando!',
       timestamp: new Date().toISOString(),
-      version: '1.0.0'
+      version: '1.0.0',
+      database: 'PostgreSQL conectado'
     });
   }
 };
