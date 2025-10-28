@@ -25,3 +25,30 @@ app.listen(port, () => {
 });
 
 module.exports = app;
+
+// Health check
+app.get('/api/v1/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'API LIGA está funcionando!',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Buscar gesto por ID
+app.get('/api/v1/gestures/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const gesture = gestures.find(g => g.id === id);
+  
+  if (!gesture) {
+    return res.status(404).json({
+      success: false,
+      message: 'Gesto não encontrado'
+    });
+  }
+  
+  res.json({
+    success: true,
+    data: gesture
+  });
+});
